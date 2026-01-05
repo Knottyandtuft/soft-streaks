@@ -228,14 +228,23 @@ return `${prefix}${item}`;
 // Events
 /* ✅ Habits: click the checkbox OR the text OR the done button */
 habitListEl.addEventListener("click", (e) => {
-const row = e.target.closest(".habit");
-if (!row) return;
+  const row = e.target.closest("li.habit");
+  if (!row) return;
 
-  const btn = e.target.closest("button[data-action='toggle']");
-  const idx = Number(
-    btn?.getAttribute("data-idx") ??
-    row.querySelector("button[data-action='toggle']")?.getAttribute("data-idx")
-  );
+  const clickedCheckbox = e.target.closest(".check");
+  const clickedLeft = e.target.closest(".habitLeft");
+  const clickedButton = e.target.closest("button[data-action='toggle']");
+
+  // Only toggle if they clicked the checkbox area, the left content area, or the Done/Undo button
+  if (!clickedCheckbox && !clickedLeft && !clickedButton) return;
+
+  const idx = Number(row.getAttribute("data-idx"));
+  if (!Number.isFinite(idx)) return;
+
+  state.habits[idx].done = !state.habits[idx].done;
+  saveState();
+  render();
+});
 
   // If they clicked something inside the row (checkbox/text) OR the button, toggle.
   // But if they clicked inside the favorites/remove buttons (not in this list), ignore.

@@ -201,7 +201,7 @@ function randomPick() {
 }
 
 /* ✅ Habits: click the checkbox OR the text OR the done button */
-habitListEl.addEventListener("click", (e) => {
+habitListEl.addEventListener("click", (e) => {   const row = e.target.closest(".habit");   if (!row) return;    // If they clicked the "Done/Undo" button, use its index   const btn = e.target.closest("button[data-action='toggle']");   const idx = Number(     btn?.getAttribute("data-idx") ?? row.getAttribute("data-idx")   );    if (!Number.isFinite(idx)) return;    state.habits[idx].done = !state.habits[idx].done;   saveState();   render(); });, (e) => {
   const row = e.target.closest(".habit");
   if (!row) return;
 

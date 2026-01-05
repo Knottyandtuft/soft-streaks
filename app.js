@@ -3,7 +3,7 @@
 const LS_KEY = "softstreaks_v1";
 
 const DEFAULT_STATE = {
-  lastDate: null,             // YYYY-MM-DD
+  lastDate: null, // YYYY-MM-DD
   streak: 0,
   mood: null,
   habits: [
@@ -44,14 +44,13 @@ function loadState() {
     if (!raw) return structuredClone(DEFAULT_STATE);
     const parsed = JSON.parse(raw);
 
-    // merge in case we add fields later
     return {
       ...structuredClone(DEFAULT_STATE),
       ...parsed,
       habits: Array.isArray(parsed.habits) && parsed.habits.length
-        ? parsed.habits.map(h => ({ name: String(h.name || "Habit"), done: !!h.done })).slice(0,3)
+        ? parsed.habits.map(h => ({ name: String(h.name || "Habit"), done: !!h.done })).slice(0, 3)
         : structuredClone(DEFAULT_STATE.habits),
-      favorites: Array.isArray(parsed.favorites) ? parsed.favorites.map(String).slice(0,50) : []
+      favorites: Array.isArray(parsed.favorites) ? parsed.favorites.map(String).slice(0, 50) : []
     };
   } catch {
     return structuredClone(DEFAULT_STATE);
@@ -64,28 +63,25 @@ function saveState() {
 
 function yyyyMmDd(d = new Date()) {
   const y = d.getFullYear();
-  const m = String(d.getMonth()+1).padStart(2,"0");
-  const day = String(d.getDate()).padStart(2,"0");
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 }
 
 function prettyDate(d = new Date()) {
-  return d.toLocaleDateString(undefined, { weekday:"long", month:"long", day:"numeric" });
+  return d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 }
 
 function resetForNewDayIfNeeded() {
   const today = yyyyMmDd();
   if (state.lastDate === today) return;
 
-  // If they completed yesterday, keep/advance streak
-  // Logic: streak increments if yesterday had all habits done.
-  // Since we reset daily, we track completion by checking old habits before resetting.
   const allDoneYesterday = state.habits.every(h => h.done);
 
   if (state.lastDate) {
     const last = new Date(state.lastDate + "T00:00:00");
     const now = new Date(today + "T00:00:00");
-    const diffDays = Math.round((now - last) / (1000*60*60*24));
+    const diffDays = Math.round((now - last) / (1000 * 60 * 60 * 24));
 
     if (diffDays === 1) {
       state.streak = allDoneYesterday ? state.streak + 1 : 0;
@@ -98,13 +94,14 @@ function resetForNewDayIfNeeded() {
 
   state.lastDate = today;
   state.mood = null;
-  state.habits = state.habits.map(h => ({ ...h, done:false }));
+  state.habits = state.habits.map(h => ({ ...h, done: false }));
   state.lastPick = null;
   saveState();
 }
 
 // UI helpers
 const $ = (sel) => document.querySelector(sel);
+
 const habitListEl = $("#habitList");
 const streakNumEl = $("#streakNum");
 const todayLineEl = $("#todayLine");
@@ -118,6 +115,15 @@ const settingsModal = $("#settingsModal");
 
 let state = loadState();
 resetForNewDayIfNeeded();
+
+function escapeHtml(str) {
+  return String(str)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
 
 function render() {
   todayLineEl.textContent = prettyDate(new Date());
@@ -133,6 +139,7 @@ function render() {
   state.habits.forEach((h, idx) => {
     const li = document.createElement("li");
     li.className = "habit" + (h.done ? " isDone" : "");
+    li.setAttribute("data-idx", String(idx));
     li.innerHTML = `
       <div class="habitLeft">
         <div class="check" aria-hidden="true">${h.done ? "✓" : ""}</div>
@@ -175,23 +182,13 @@ function render() {
   }
 }
 
-function escapeHtml(str) {
-  return String(str)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
-
 function randomPick() {
-  // “Bonus vibe” if all habits done
   const allDone = state.habits.every(h => h.done);
 
-  // pick a pack. If allDone, weight dopamine pack more
+  // If allDone, weight dopamine more
   const pool = allDone
-    ? ["dopamine","dopamine","food","do"]
-    : ["dopamine","food","do"];
+    ? ["dopamine", "dopamine", "food", "do"]
+    : ["dopamine", "food", "do"];
 
   const packKey = pool[Math.floor(Math.random() * pool.length)];
   const pack = PACKS[packKey];
@@ -203,17 +200,14 @@ function randomPick() {
   return `${prefix}${item}`;
 }
 
-// Events
+/* ✅ Habits: click the checkbox OR the text OR the done button */
 habitListEl.addEventListener("click", (e) => {
   const row = e.target.closest(".habit");
   if (!row) return;
 
-  const btn = e.target.closest("button[data-action='toggle']");
-  const idx = Number(
-    btn?.getAttribute("data-idx") ??
-    row.querySelector("button[data-action='toggle']")?.getAttribute("data-idx")
-  );
-
+  // If they clicked something inside the row (checkbox/text) OR the button, toggle.
+  // But if they clicked inside the favorites/remove buttons (not in this list), ignore.
+  const idx = Number(row.getAttribute("data-idx"));
   if (!Number.isFinite(idx)) return;
 
   state.habits[idx].done = !state.habits[idx].done;
@@ -244,11 +238,36 @@ $("#spinAgainBtn").addEventListener("click", () => {
   render();
 });
 
+/* ✅ Share button works (iPhone share sheet + clipboard fallback) */
+$("#shareBtn").addEventListener("click", async () => {
+  if (!state.lastPick) return;
+
+  const text = `My Soft Streaks pick ✨\n\n${state.lastPick}\n\n${location.href}`;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: "Soft Streaks ✨",
+        text
+      });
+      return;
+    } catch {
+      // user canceled; fall through to clipboard
+    }
+  }
+
+  try {
+    await navigator.clipboard.writeText(text);
+    alert("Copied to clipboard 💖");
+  } catch {
+    alert("Copy failed — you can manually copy from the address bar 💖");
+  }
+});
+
 $("#saveFavBtn").addEventListener("click", () => {
   if (!state.lastPick) return;
   if (!state.favorites.includes(state.lastPick)) {
     state.favorites.push(state.lastPick);
-    // keep it capped
     state.favorites = state.favorites.slice(-50);
     saveState();
     render();
@@ -276,11 +295,10 @@ $("#saveHabitsBtn").addEventListener("click", () => {
   const names = [$("#habit1").value, $("#habit2").value, $("#habit3").value]
     .map(s => String(s || "").trim())
     .filter(Boolean)
-    .slice(0,3);
+    .slice(0, 3);
 
-  // Always keep 3 slots for UI consistency
   const padded = [...names];
-  while (padded.length < 3) padded.push(`Tiny win ${padded.length+1} ✨`);
+  while (padded.length < 3) padded.push(`Tiny win ${padded.length + 1} ✨`);
 
   state.habits = padded.map((n, i) => ({
     name: n,
@@ -303,7 +321,7 @@ $("#resetBtn").addEventListener("click", () => {
 });
 
 $("#exportBtn").addEventListener("click", () => {
-  const blob = new Blob([JSON.stringify(state, null, 2)], { type:"application/json" });
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

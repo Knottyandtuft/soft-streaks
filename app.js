@@ -205,9 +205,15 @@ function randomPick() {
 
 // Events
 habitListEl.addEventListener("click", (e) => {
+  const row = e.target.closest(".habit");
+  if (!row) return;
+
   const btn = e.target.closest("button[data-action='toggle']");
-  if (!btn) return;
-  const idx = Number(btn.getAttribute("data-idx"));
+  const idx = Number(
+    btn?.getAttribute("data-idx") ??
+    row.querySelector("button[data-action='toggle']")?.getAttribute("data-idx")
+  );
+
   if (!Number.isFinite(idx)) return;
 
   state.habits[idx].done = !state.habits[idx].done;

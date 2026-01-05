@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Soft Streaks ✨</title>
+
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#F19FDF" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <div>
+        <h1 class="title">Soft Streaks <span aria-hidden="true">✨</span></h1>
+        <p class="subtitle" id="todayLine">Today</p>
+      </div>
+      <button class="ghost" id="openSettingsBtn" aria-label="Open settings">⚙️</button>
+    </header>
+
+    <!-- Mood -->
+    <section class="card">
+      <h2 class="h2">How are you feeling?</h2>
+      <div class="moods" id="moodRow" role="group" aria-label="Mood picker">
+        <button class="chip" data-mood="😊">😊</button>
+        <button class="chip" data-mood="🙂">🙂</button>
+        <button class="chip" data-mood="😐">😐</button>
+        <button class="chip" data-mood="🥲">🥲</button>
+        <button class="chip" data-mood="😴">😴</button>
+        <button class="chip" data-mood="😤">😤</button>
+      </div>
+      <p class="hint" id="moodHint">Pick one — you can change it anytime.</p>
+    </section>
+
+    <!-- Habits -->
+    <section class="card">
+      <div class="row">
+        <h2 class="h2">Today’s tiny wins</h2>
+        <button class="ghost" id="editHabitsBtn">Edit</button>
+      </div>
+
+      <ul class="habitList" id="habitList" aria-label="Habit checklist"></ul>
+
+      <div class="row spaced">
+        <div class="streakBox">
+          <div class="streakNum" id="streakNum">0</div>
+          <div class="streakLabel">day streak</div>
+        </div>
+
+        <button class="primary" id="spinBtn">
+          Pick For Me ✨
+          <span class="arrow" aria-hidden="true">→</span>
+        </button>
+      </div>
+
+      <p class="hint" id="rewardHint">Tip: complete all habits to unlock a “bonus” spin vibe.</p>
+    </section>
+
+    <!-- Result -->
+    <section class="card" id="resultCard" hidden>
+      <div class="row">
+        <h2 class="h2">Your pick</h2>
+        <button class="ghost" id="shareBtn">Share</button>
+      </div>
+      <div class="result" id="resultText">—</div>
+      <div class="row">
+        <button class="secondary" id="spinAgainBtn">Spin again</button>
+        <button class="ghost" id="saveFavBtn">♡ Save</button>
+      </div>
+      <div class="favWrap" id="favWrap" hidden>
+        <h3 class="h3">Favorites</h3>
+        <ul class="favList" id="favList"></ul>
+      </div>
+    </section>
+
+    <!-- Modals -->
+    <dialog class="modal" id="habitsModal">
+      <form method="dialog" class="modalInner">
+        <h2 class="h2">Edit habits (max 3)</h2>
+        <p class="hint">Keep them tiny so streaks feel easy.</p>
+
+        <label class="field">
+          <span>Habit 1</span>
+          <input id="habit1" maxlength="40" />
+        </label>
+        <label class="field">
+          <span>Habit 2</span>
+          <input id="habit2" maxlength="40" />
+        </label>
+        <label class="field">
+          <span>Habit 3</span>
+          <input id="habit3" maxlength="40" />
+        </label>
+
+        <div class="row end">
+          <button class="ghost" value="cancel">Cancel</button>
+          <button class="primary" id="saveHabitsBtn" value="default">Save</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="settingsModal">
+      <form method="dialog" class="modalInner">
+        <h2 class="h2">Settings</h2>
+
+        <div class="pillBox">
+          <span class="pill">Cotton-candy theme</span>
+          <span class="pill">Offline-friendly</span>
+          <span class="pill">No login needed</span>
+        </div>
+
+        <div class="row spaced">
+          <button class="secondary" id="exportBtn" type="button">Export data</button>
+          <button class="danger" id="resetBtn" type="button">Reset all</button>
+        </div>
+
+        <p class="hint">
+          iPhone install: open in Safari → Share → “Add to Home Screen”.
+        </p>
+
+        <div class="row end">
+          <button class="primary" value="default">Done</button>
+        </div>
+      </form>
+    </dialog>
+
+    <footer class="footer">
+      <span class="tiny">Made with pastel chaos 💖</span>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -221,13 +221,3 @@ input{
 }
 .footer{ text-align:center; margin-top: 14px; }
 .tiny{ color: rgba(31,41,55,.55); font-size: 12px; }
-/* Make habit checkbox + left side clickable */
-.habit,
-.habitLeft,
-.check {
-  cursor: pointer;
-}
-
-.check {
-  pointer-events: none;
-}

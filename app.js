@@ -377,10 +377,11 @@ URL.revokeObjectURL(url);
 });
 
 // PWA Service worker
-if ("serviceWorker" in navigator) {
-window.addEventListener("load", async () => {
-try { await navigator.serviceWorker.register("./sw.js"); } catch {}
-});
-}
+// TEMP: disable service worker while we debug caching issues
+// if ("serviceWorker" in navigator) {
+//   window.addEventListener("load", async () => {
+//     try { await navigator.serviceWorker.register("./sw.js"); } catch {}
+//   });
+// }
 
 render();

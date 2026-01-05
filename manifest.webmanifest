@@ -1,0 +1,15 @@
+{
+  "name": "Soft Streaks ✨",
+  "short_name": "SoftStreaks",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#B8DEE2",
+  "theme_color": "#F19FDF",
+  "icons": [
+    {
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAIElEQVR4nO3BMQEAAADCoPVPbQ0PoAAAAAAAAAAAAAB4G4wAAaXcH9kAAAAASUVORK5CYII=",
+      "sizes": "64x64",
+      "type": "image/png"
+    }
+  ]
+}
